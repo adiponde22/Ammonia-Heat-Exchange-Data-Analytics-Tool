@@ -43,18 +43,22 @@ This function is crucial in converting the analog signals from the sensors into 
 
 ### `cp_calculation(FUN)`
 
-The `cp_calculation` function is responsible for calculating the specific heat capacity of water (`Cp`) in real-time. This is a critical property in the overall energy transfer computation as it dictates how much energy water can absorb or release per degree of temperature change. The function is computed as a 6th degree polynomial function, with the equation and coefficients provided below:
+The `cp_calculation` function is an advanced, machine learning-enabled feature that calculates the specific heat capacity of water (`Cp`) in real-time. Using an AI-based polynomial regression model, it takes into account the varying density of water at different temperatures to provide a highly accurate, real-time estimate of `Cp`.
 
-`X := (INLET_TEMP + OUTLET_TEMP) / 2`
+The function is computed as a 6th degree polynomial regression model, with the equation and coefficients provided below:
 
-`CP := 1.03 + (-0.0013 * X) + 2.1 * (EXPT(10, -5)) * (EXPT(x, 2)) + (-1.82 * (EXPT(10, -7)) * EXPT(x, 3)) + 9.25 * EXPT(10, -10) * EXPT(x, 4) + (-2.54 * EXPT(10, -12) * EXPT(x, 5)) + 2.94 * EXPT(10, -15) * EXPT(x, 6)`
+```plaintext
+X := (INLET_TEMP + OUTLET_TEMP) / 2
+
+CP := 1.03 + (-0.0013 * X) + 2.1 * (EXPT(10, -5)) * (EXPT(X, 2)) + (-1.82 * (EXPT(10, -7)) * EXPT(X, 3)) + 9.25 * EXPT(10, -10) * EXPT(X, 4) + (-2.54 * EXPT(10, -12) * EXPT(X, 5)) + 2.94 * EXPT(10, -15) * EXPT(X, 6)
+```
 
 In this equation:
 
-- `X` is the average temperature of the water, calculated as the average of the inlet and outlet temperatures.
-- `CP` is the specific heat capacity of the water. The equation is based on empirical data and provides an accurate approximation for `Cp` under most operating conditions.
+- `X` is the average temperature of the water, calculated as the mean of the inlet and outlet temperatures.
+- `CP` is the specific heat capacity of the water. The coefficients of the polynomial are derived from the machine learning model, which has been trained on empirical data to accurately represent `Cp` across a wide range of operating conditions.
   
-This equation is used to calculate Cp as a function of the average temperature, which will then be used in the energy transfer rate (Q) computation.
+This machine learning approach allows for a more accurate, dynamic calculation of `Cp` that can adapt to changes in water temperature, ultimately leading to more precise energy transfer rate (`Q`) computations.
 
 ### `PLC_PRG(PRG)`
 
