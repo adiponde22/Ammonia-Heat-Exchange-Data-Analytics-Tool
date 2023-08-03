@@ -85,13 +85,13 @@ The program computes the energy transferred in the form of heat (BTU) in real-ti
 
 Where `Q` is the heat transfer, `Cp` is the specific heat capacity, `m_dot` is the mass flow rate, and `T_inlet` and `T_outlet` are the water inlet and outlet temperatures, respectively. The `cp_calculation` function computes the specific heat capacity of the water through a 6th-degree polynomial.
 
-### Data Logging and Transfer
+## Data Logging and Transfer
 
 All sensor data and calculated parameters are stored in a text file for historical tracking and subsequent data analysis. This data forms the basis for system performance analysis, energy efficiency monitoring, and predictive maintenance strategies.
 
 The program also includes an FTP function, enabling the recorded data to be transferred to a remote server. This allows for regular checkups, data backups, and further analysis, ensuring the integrity and availability of the data.
 
-### Data Visualization 
+## Data Visualization 
 
 The modern, user-friendly UI presents all sensor data and thermal performance metrics in an easy-to-read format. Graphs plotting sensor data over time offer users a powerful tool for pattern recognition and performance optimization. The system also includes an HMI that provides a visual interface for real-time system monitoring and interaction.
 
