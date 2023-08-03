@@ -25,6 +25,58 @@ The CoDeSys program performs several tasks, namely:
 
 The sensors' analog signals are transformed into usable process values through a linear function. A calibration page allows users to apply specific offsets as needed, thereby enabling more accurate data representation.
 
+
+
+## Function Descriptions
+
+This section provides an overview of the key functions employed in this CoDeSys program.
+
+### `analog_conv(FUN)`
+
+This function is crucial in converting the analog signals from the sensors into usable data. It uses a linear function to map the 4-20mA signal into a range that represents the actual physical quantity being measured (temperature, pressure, or flow rate). The function follows this structure:
+
+`output = (X1 - X0) / 32768 * input + (X0 + offset)`
+
+- `input`: The raw sensor reading in the range 4-20mA.
+- `X0` and `X1`: These are calibration parameters that are used to map the 4-20mA range onto the physical range of the parameter being measured.
+- `offset`: This is an additional user-defined offset that can be set for each sensor individually to account for any systematic error.
+
+### `cp_calculation(FUN)`
+
+The `cp_calculation` function is responsible for calculating the specific heat capacity of water (`Cp`) in real-time. This is a critical property in the overall energy transfer computation as it dictates how much energy water can absorb or release per degree of temperature change. The function is computed as a 6th degree polynomial function, with the equation and coefficients provided below:
+
+`X := (INLET_TEMP + OUTLET_TEMP) / 2`
+
+`CP := 1.03 + (-0.0013 * X) + 2.1 * (EXPT(10, -5)) * (EXPT(x, 2)) + (-1.82 * (EXPT(10, -7)) * EXPT(x, 3)) + 9.25 * EXPT(10, -10) * EXPT(x, 4) + (-2.54 * EXPT(10, -12) * EXPT(x, 5)) + 2.94 * EXPT(10, -15) * EXPT(x, 6)`
+
+In this equation:
+
+- `X` is the average temperature of the water, calculated as the average of the inlet and outlet temperatures.
+- `CP` is the specific heat capacity of the water. The equation is based on empirical data and provides an accurate approximation for `Cp` under most operating conditions.
+  
+This equation is used to calculate Cp as a function of the average temperature, which will then be used in the energy transfer rate (Q) computation.
+
+### `PLC_PRG(PRG)`
+
+The `PLC_PRG` function acts as the main orchestrator of the program. It reads and translates all the data from the sensors, calls the necessary functions to compute Cp and convert analog signals, and finally calculates the heat transfer rate (Q) using the formula:
+
+`Q = Cp * m_dot * (T_inlet - T_outlet)`
+
+- `Cp`: Specific heat capacity of the water, calculated using `cp_calculation(FUN)`
+- `m_dot`: Mass flow rate of the water
+- `T_inlet` and `T_outlet`: Inlet and outlet temperatures of the water, measured by the temperature probes
+
+All sensor data and calculated parameters are then saved to a text file for subsequent analysis. The program also initiates the data transfer to the remote server using FTP, ensuring the backup and availability of the data.
+
+## Data Visualization 
+
+The program uses a modern UI to display real-time sensor data and calculated performance metrics in a user-friendly format. This includes both raw numerical data and graphical representations to help users recognize patterns and understand system performance over time.
+
+## Calibration
+
+To cater to individual system nuances and enhance data accuracy, the program provides a calibration page. Users can input specific offsets for each sensor to account for any systematic error, ensuring the accurate representation of the system's physical quantities.
+
+
 ### Real-Time Thermal Performance Metrics Calculation
 
 The program computes the energy transferred in the form of heat (BTU) in real-time. This is done through the `PLC_PRG` function, which applies the formula:
