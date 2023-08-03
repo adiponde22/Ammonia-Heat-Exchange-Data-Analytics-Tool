@@ -43,7 +43,7 @@ This function is crucial in converting the analog signals from the sensors into 
 
 ### `cp_calculation(FUN)`
 
-The `cp_calculation` function is an advanced, machine learning-enabled feature that calculates the specific heat capacity of water (`Cp`) in real-time. Using an AI-based polynomial regression model, it takes into account the varying density of water at different temperatures to provide a highly accurate, real-time estimate of `Cp`.
+The `cp_calculation` function is an advanced, machine learning-enabled feature that calculates the specific heat capacity of water (`Cp`) in real-time. The machine learning model is a polynomial regression based model that captures non-linear relationships between varying density of water at different temperatures to provide a highly accurate, real-time estimate of `Cp`.
 
 The function is computed as a 6th degree polynomial regression model, with the equation and coefficients provided below:
 
