@@ -77,7 +77,7 @@ The program uses a modern UI to display real-time sensor data and calculated per
 To cater to individual system nuances and enhance data accuracy, the program provides a calibration page. Users can input specific offsets for each sensor to account for any systematic error, ensuring the accurate representation of the system's physical quantities.
 
 
-### Real-Time Thermal Performance Metrics Calculation
+## Real-Time Thermal Performance Metrics Calculation
 
 The program computes the energy transferred in the form of heat (BTU) in real-time. This is done through the `PLC_PRG` function, which applies the formula:
 
