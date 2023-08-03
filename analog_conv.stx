@@ -1,0 +1,15 @@
+FUNCTION analog_conv
+VAR_INPUT
+	// input flow signal
+	input: REAL;
+	X1: REAL;
+	X0: REAL;
+	offset: REAL;
+END_VAR
+VAR_OUTPUT
+	// output flow gpm
+	output: REAL;
+END_VAR
+
+
+output := (X1-X0)/32768*input + (X0 + offset);

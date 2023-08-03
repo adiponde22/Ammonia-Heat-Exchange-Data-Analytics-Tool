@@ -1,0 +1,15 @@
+FUNCTION cp_calculation 
+VAR_INPUT
+	INLET_TEMP : REAL;
+	OUTLET_TEMP : REAL;
+END_VAR
+VAR
+	X : REAL;
+END_VAR
+VAR_OUTPUT
+	CP : LREAL;
+END_VAR
+
+
+X := (INLET_TEMP + OUTLET_TEMP)/2; 
+CP := 1.03 + (-0.0013 * X) + 2.1 * (EXPT(10, -5)) * (EXPT(x, 2)) + (-1.82 * (EXPT(10, -7)) * EXPT(x, 3)) + 9.25 * EXPT(10, -10) * EXPT(x, 4) + (-2.54 * EXPT(10, -12) * EXPT(x, 5)) + 2.94 * EXPT(10, -15) * EXPT(x, 6);

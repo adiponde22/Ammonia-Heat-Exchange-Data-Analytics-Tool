@@ -1,0 +1,138 @@
+PROGRAM PLC_PRG 
+
+VAR 
+	// Inputs from sensors
+	Flow_Meter_Water: REAL; // Water flow measured by the flow meter
+	Pressure_HX1: REAL;     // Pressure in Heat Exchanger 1
+	Pressure_HX2: REAL;     // Pressure in Heat Exchanger 2
+
+	// Temperatures in Heat Exchanger 1
+	Temperature_HX1_AIN: REAL;  // Ammonia Inlet
+	Temperature_HX1_AOUT: REAL; // Ammonia Outlet
+	Temperature_HX1_WIN: REAL;  // Water Inlet
+	Temperature_HX1_WOUT: REAL; // Water Outlet
+
+	// Temperatures in Heat Exchanger 2
+	Temperature_HX2_AIN: REAL;  // Ammonia Inlet
+	Temperature_HX2_AOUT: REAL; // Ammonia Outlet
+	Temperature_HX2_WIN: REAL;  // Water Inlet
+	Temperature_HX2_WOUT: REAL; // Water Outlet
+
+	// Calculated outputs
+	HEAT_BTU_HX1: LREAL; // Total heat (in BTU) transferred in Heat Exchanger 1
+	HEAT_BTU_HX2: LREAL; // Total heat (in BTU) transferred in Heat Exchanger 2
+	CP : REAL; // Calculated specific heat capacity
+	M_DOT : LREAL; // Calculated mass flow rate
+
+	// Calibration offsets for the sensors
+	// For Heat Exchanger 1
+	OFFSET_TEMP_HX1_AIN : REAL := 0;
+	OFFSET_TEMP_HX1_AOUT : REAL := 0;
+	OFFSET_TEMP_HX1_WIN : REAL := 0;
+	OFFSET_TEMP_HX1_WOUT : REAL := 0;
+	
+	// For Heat Exchanger 2
+	OFFSET_TEMP_HX2_AIN : REAL := 0;
+	OFFSET_TEMP_HX2_AOUT : REAL := 0;
+	OFFSET_TEMP_HX2_WIN : REAL := 0;
+	OFFSET_TEMP_HX2_WOUT : REAL := 0;
+	
+	OFFSET_PRESSURE_HX1 : REAL := 0;
+	OFFSET_PRESSURE_HX2 : REAL := 0;
+	OFFSET_FLOWMETER_WATER : REAL := 0;
+	
+	// Variables for handling the file writing
+	strFileName : STRING ;
+	strStringToWrite : STRING := '';
+	stFileHandle : SysFile.RTS_IEC_HANDLE;
+	stResult : SysFile.RTS_IEC_RESULT;
+	pbyBuffer : POINTER TO BYTE := ADR(strStringToWrite); 
+	nSizeWritten : __XWORD;
+	newline : STRING := '$N'; // Newline character
+	
+	// String variables for each sensor value to be written to the file
+	// for Heat Exchanger 1
+	strTEMP_A_IN_HX1 : STRING(4);
+	strTEMP_A_OUT_HX1 : STRING(5);
+	strTEMP_W_IN_HX1 : STRING(5);
+	strTEMP_W_OUT_HX1 : STRING(5);
+	
+	// for Heat Exchanger 2
+	strTEMP_A_IN_HX2 : STRING(5);
+	strTEMP_A_OUT_HX2 : STRING(5);
+	strTEMP_W_IN_HX2 : STRING(5);
+	strTEMP_W_OUT_HX2 : STRING(5);
+	
+	// Pressure for both heat exchangers
+	strPRESSURE_HX1 : STRING(5);
+	strPRESSURE_HX2 : STRING(5);
+	
+	// Total heat transferred for both heat exchangers
+	strBTU_HX1 : STRING(5);
+	strBTU_HX2 : STRING(5);
+	
+	// Flow rates for both heat exchangers
+	strFLOW_HX1: STRING(5);
+	strFLOW_HX2: STRING(5);
+
+	// Timer to control the frequency of data writing
+	MyTimer : TON;    (* Declare timer *)
+    OutputVar : BOOL; (* Output for some operation *)
+
+	// Variables for getting the current date and time
+	udiUTC_DateAndTime : UDINT;
+    udiLocal_DateAndTime : UDINT;
+	Result : UDINT;
+	CurrentDateTime : DATE_AND_TIME;
+    FinalDateString : STRING;
+	pbyBufferone : POINTER TO BYTE := ADR(FinalDateString);
+	
+END_VAR
+
+
+// Define a string file name
+strFileName := '$$SDCard$$/kayem_heat_rec_sys_data.txt';
+
+// Analog conversion for Water Flow meter and Heat Exchanger Pressure
+Flow_Meter_Water := analog_conv(flow,264.18,0, OFFSET_FLOWMETER_WATER);
+Pressure_HX1 := analog_conv(P_HX_1, 200.00, 0, OFFSET_PRESSURE_HX1);
+Pressure_HX2 := analog_conv(P_HX_2, 200.00, 0, OFFSET_PRESSURE_HX2);
+
+// Analog conversion for Heat Exchanger temperatures
+Temperature_HX1_AIN := analog_conv(T_HX_1_A_IN, 200.00, 40.00, OFFSET_TEMP_HX1_AIN);
+// rest of the temperature conversions
+
+// Calculating the heat capacity
+CP := cp_calculation(Temperature_HX1_WOUT, Temperature_HX1_WIN);
+
+// Calculating the heat energy in BTU for both Heat Exchangers
+HEAT_BTU_HX1 := ((FLOW_METER_WATER/2) * 370.2) * (Temperature_HX1_WOUT - Temperature_HX1_WIN) * CP;
+HEAT_BTU_HX2 := ((FLOW_METER_WATER/2) * 370.2) * (Temperature_HX2_WOUT - Temperature_HX2_WIN) * CP;
+
+// Calculating mass flow rate
+M_DOT := mdot_calculation(HEAT_BTU_HX1, Temperature_HX1_WIN, Temperature_HX1_WOUT, CP);
+
+// Get system time and convert it to a string format
+udiUTC_DateAndTime := TO_UDINT(SysTimeRtcGet(Result)); // UDINT#1528268918
+Result := SysTimeRTCConvertUTCToLocal(udiUTC_DateAndTime, udiLocal_DateAndTime); // UDINT#1528276118
+CurrentDateTime := TO_DT(udiLocal_DateAndTime);
+FinalDateString := CONCAT(DT_TO_STRING(CurrentDateTime), ',   ');
+
+// Format each value to write to main string with commas for CSV format
+strTEMP_A_IN_HX1 :=  REAL_TO_STRING(Temperature_HX1_AIN);
+// rest of the value conversions
+
+// Construct main string to write to file with all values
+strStringToWrite := CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(CONCAT(strTEMP_A_IN_HX1, strTEMP_A_OUT_HX1), strTEMP_W_IN_HX1),strTEMP_W_OUT_HX1),strTEMP_A_IN_HX2),strTEMP_A_OUT_HX2),strTEMP_W_IN_HX2),strTEMP_W_OUT_HX2), strPRESSURE_HX1), strPRESSURE_HX2), strBTU_HX1), strBTU_HX2), strFLOW_HX1), strFLOW_HX2),'$N');
+
+// Start timer to write to file every 5 seconds
+MyTimer(IN := NOT MyTimer.Q, PT := T#5S); 
+IF MyTimer.Q THEN
+    MyTimer(IN := FALSE); // Reset timer
+		
+    // Open file, write the current date/time , write the data, then close file
+    //stFileHandle := SysFileOpen(strFileName, SysFile.AM_APPEND, ADR(stResult));
+    //nSizeWritten := SysFileWrite(stFileHandle, pbyBufferone, TO___XWORD(LEN(FinalDateString)), ADR(stResult));
+    //nSizeWritten := SysFileWrite(stFileHandle, pbyBuffer, TO___XWORD(LEN(strStringToWrite)), ADR(stResult));
+    //stResult := SysFileClose(stFileHandle);
+END_IF
