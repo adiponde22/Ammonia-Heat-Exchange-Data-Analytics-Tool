@@ -95,10 +95,6 @@ The program also includes an FTP function, enabling the recorded data to be tran
 
 The modern, user-friendly UI presents all sensor data and thermal performance metrics in an easy-to-read format. Graphs plotting sensor data over time offer users a powerful tool for pattern recognition and performance optimization. The system also includes an HMI that provides a visual interface for real-time system monitoring and interaction.
 
-## Getting Started
-
-To get started with this tool, ensure the WAGO PFC200 controller is connected to all necessary sensors and that you have a system running CoDeSys. For the FTP feature, you need to have access to a remote server that can receive and store the data. Ensure that the HMI is correctly set up to display the web visualization of the PLC system.
-
 ## Conclusion and Future Directions
 
 By leveraging the power of real-time data analysis and remote data transfer, this tool is poised to revolutionize how industry professionals maintain and optimize their ammonia heat exchanger systems. The integration of a dedicated HMI significantly enhances the user experience by providing an intuitive interface for real-time system monitoring and interaction. Looking forward, potential enhancements could include the implementation of alarms for abnormal operating conditions, further UI enhancements for improved data visualization, and the integration of machine learning algorithms for predictive maintenance and anomaly detection.
