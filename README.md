@@ -13,6 +13,23 @@ The WAGO PFC200 controller acts as the data collection hub for the system. It in
 - Two pressure probes
 - One flow meter
 
+**Temperature Probes**
+- Ammonia Inlet - Heat Exchanger 1
+- Ammonia Outlet - Heat Exchanger 1
+- Water Inlet - Heat Exchanger 1
+- Water Outlet - Heat Exchanger 1
+- Ammonia Inlet - Heat Exchanger 2
+- Ammonia Outlet - Heat Exchanger 2
+- Water Inlet Heat - Exchanger 2
+- Water Outlet Heat - Exchanger 2
+
+**Pressure Probes**
+- Ammonia Pressure - Heat Exchanger 1
+- Ammonia Pressure - Heat Exchanger 2
+
+**Flow Meter**
+- Water Flow
+
 These sensors are all analog types that output a 4-20mA signal.
 
 The HMI component is a Linux-based embedded computer panel that displays the web visualization of the WAGO PFC200 PLC system on a local network. The HMI is set up to directly boot into the web visualization of the PLC, providing a user-friendly interface for system monitoring and interaction.
